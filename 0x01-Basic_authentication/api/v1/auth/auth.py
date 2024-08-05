@@ -1,32 +1,42 @@
 #!/usr/bin/env python3
-"""Auth Class"""
-from flask import request, Flask
+"""
+Auth class
+"""
+from flask import request
 from typing import List, TypeVar
-import os
+from fnmatch import fnmatch
 
 
-class Auth():
+class Auth:
     """Auth class"""
-
-    def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """require_auth function"""
-        check = path
-        if path is None or excluded_paths is None or len(excluded_paths) == 0:
+    def require_auth(self,
+                     path: str,
+                     excluded_paths: List[str]) -> bool:
+        """
+        public method
+        """
+        if path is None or excluded_paths is None or excluded_paths == []:
             return True
-        if path[-1] != "/":
-            check += "/"
-        if check in excluded_paths or path in excluded_paths:
-            return False
-        return True
+        if not path.endswith("/"):
+            path += "/"
+        for ex_path in excluded_paths:
+            if fnmatch(path, ex_path):
+                return False
+        if path not in excluded_paths:
+            return True
+        return False
 
-
-    def authorization_header(self, request=None) -> str:
-        """authorization_header function"""
-        if request is None:
+    def authorization_header(self,
+                             request=None) -> str:
+        """
+        public method
+        """
+        if request is None or 'Authorization' not in request.headers:
             return None
-        return request.headers.get("Authorization")
-
+        return request.headers['Authorization']
 
     def current_user(self, request=None) -> TypeVar('User'):
-        """current_user function"""
+        """
+        public method
+        """
         return None
